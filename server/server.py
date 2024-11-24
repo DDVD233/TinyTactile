@@ -1,22 +1,43 @@
 from flask import Flask
 import random
 
+from classifier import classifier
+
 app = Flask(__name__)
 
 @app.route("/")
 def hello_world():
     return "Hello World"
 
-// --- CALIBRATION/FINE-TUNING ---
+# --- CLASSIFIER ---
+@app.route("/model/classify", methods=['POST'])
+def classify_text():   
+    data = request.get_json()
+    res = ""
 
-@app.route("/calibrate/letters", method=['GET'])
+    for c in data['text']:
+        res += classifier[c]
+    
+    return res, 201
+
+# --- CALIBRATION/FINE-TUNING ---
+
+@app.route("/calibrate/letters", methods=['GET'])
 def get_calibration_letter_prompts():
     return [
         "The quick brown fox jumped over the lazy dog.",
-        "", // We need more informed prompts?
-    ]
+    ], 200
 
-@app.route("/calibrate/modifiers", method=['GET'])
+@app.route("/calibrate/letters", methods=['POST'])
+def calibrate_letters():
+    reference = "The quick brown fox jumped over the lazy dog.!"
+    data = request.get_json()
+    for r, c in zip(reference, data['data']):
+        classifier[r.lower()] = c.lower()
+        classifier[r.upper()] = c.upper()
+    return "", 201
+
+@app.route("/calibrate/modifiers", methods=['GET'])
 def get_calibration_modifier_prompts():
     return [
         "Tap all the locations for Shift",
@@ -24,21 +45,21 @@ def get_calibration_modifier_prompts():
         "Tap all the locations for Enter",
         "Tap all the locations for Backspace"
         "Tap all the locations for Caps Lock"
-    ]
+    ], 200
 
-@app.route("/calibrate/letters", method=['POST'])
+@app.route("/calibrate/letters", methods=['POST'])
 def post_calibration_letter_prompts():
     data = request.get_json()
-    // TODO: Pass this JSON data to Model for finetuning
+    # TODO: Pass this JSON data to Model for finetuning
 
-@app.route("/calibrate/modifiers", method=['POST'])
+@app.route("/calibrate/modifiers", methods=['POST'])
 def post_calibration_modifier_prompts():
     data = request.get_json()
-    // TODO: Pass this JSON data to Model for finetuning
+    # TODO: Pass this JSON data to Model for finetuning
 
-// --- TEXT EXCERPTS ---
+# --- TEXT EXCERPTS ---
 
-@app.route("/excerpt", method=['GET'])
+@app.route("/excerpt", methods=['GET'])
 def get_excerpt():
     excerpts = [
         "Generative AI is revolutionizing creative industries by producing realistic images, music, and text.",
