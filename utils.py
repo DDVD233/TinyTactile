@@ -7,6 +7,18 @@ import datetime
 from datetime import datetime
 import subprocess
 
+def read_key_data(file_path):
+    key_data = {}
+    with h5py.File(file_path, 'r') as f:
+        for key in f:
+            if 'frames' not in key:
+                key_data[key] = []
+                key_group = f[key]
+                for dataset_name in key_group:
+                    frames = key_group[dataset_name][:]
+                    key_data[key].append(frames)
+    return key_data
+
 
 def tactile_reading(path):
     f = h5py.File(path, 'r')
