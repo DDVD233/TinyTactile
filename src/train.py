@@ -1,3 +1,4 @@
+import json
 import os
 from collections import defaultdict
 
@@ -8,6 +9,8 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision.models import resnet18
 from sklearn.model_selection import train_test_split
 from utils import read_key_data
+from model import ModelFactory, train_model
+import argparse
 
 
 class TactileDataset(Dataset):
@@ -141,16 +144,28 @@ def preprocess_combined_data(data_dict):
 
 
 def train():
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Train tactile classification model')
+    parser.add_argument('--model', type=str, default='resnet',
+                        choices=['resnet', 'shallow_cnn', 'knn', 'svm'],
+                        help='Model architecture to use')
+    parser.add_argument('--epochs', type=int, default=100,
+                        help='Number of epochs for deep learning models')
+    args = parser.parse_args()
+
     # Device configuration
     device = get_device()
 
-    # Load and preprocess data
+    # Load and preprocess data (keeping your existing data loading code)
     data_folder = 'recordings'
     file_list = [f for f in os.listdir(data_folder)
                  if f.endswith('layout_1.hdf5') or f.endswith('2024-11-25_18-13-21.hdf5')]
 
     combined_data = combine_data_dicts(file_list, data_folder)
     samples, labels, label_to_idx = preprocess_combined_data(combined_data)
+    # Save class mapping
+    with open('class_mapping.json', 'w') as f:
+        json.dump(label_to_idx, f)
 
     # Train-test split
     X_train, X_test, y_train, y_test = train_test_split(
@@ -165,39 +180,18 @@ def train():
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
     # Initialize model
-    model = resnet18(pretrained=True)
-    # Modify first conv layer to accept 1 channel instead of 3
-    model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-    # Modify final layer to match number of classes
-    num_classes = len(label_to_idx)
-    model.fc = nn.Linear(model.fc.in_features, num_classes)
-    model = model.to(device)
+    model = ModelFactory.create_model(args.model, len(label_to_idx), device)
 
-    # Loss and optimizer
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
-
-    # Training loop
-    num_epochs = 100
-    best_acc = 0.0
-
-    for epoch in range(num_epochs):
-        train_loss, train_acc = train_epoch(model, train_loader, criterion, optimizer, device)
-        test_acc = evaluate(model, test_loader, device)
-
-        print(f'Epoch [{epoch + 1}/{num_epochs}]:')
-        print(f'Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%')
-        print(f'Test Acc: {test_acc:.2f}%')
-
-        if test_acc > best_acc:
-            best_acc = test_acc
-            # Save best model
-            torch.save(model.state_dict(), 'best_tactile_model.pth')
+    # Train model
+    model_type = 'deep' if args.model in ['resnet', 'shallow_cnn'] else 'sklearn'
+    best_acc = train_model(model, train_loader, test_loader, device,
+                           model_type=model_type, num_epochs=args.epochs)
 
     print(f'\nBest Test Accuracy: {best_acc:.2f}%')
     print('\nClass mapping:')
     for key, idx in label_to_idx.items():
         print(f'{key}: {idx}')
+
 
 
 if __name__ == '__main__':
