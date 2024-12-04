@@ -149,7 +149,7 @@ def train():
     parser.add_argument('--model', type=str, default='resnet',
                         choices=['resnet', 'shallow_cnn', 'knn', 'svm'],
                         help='Model architecture to use')
-    parser.add_argument('--epochs', type=int, default=100,
+    parser.add_argument('--epochs', type=int, default=60,
                         help='Number of epochs for deep learning models')
     args = parser.parse_args()
 
