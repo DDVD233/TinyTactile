@@ -1,0 +1,60 @@
+11/26/24
+  - Report due date different than demo date?
+  - Presentation on Dec 5th
+  - Looked at rubric
+    - We need to frame it better as a TinyML project
+      - Mention sensors integrated w/ microcontrollers, and can be used on non-laptop device
+      - need for realtime responsiveness
+    - Should mention performance before and after quantization (e.g. latency, MACs, etc)
+  - Technical soundness
+    - quantization, choice of architecture, fine-tuning, neural arch search
+  - Novelty - lol
+  - Evaluation
+    - discussion and reflection
+    - train-test-split
+    - report test accuracy
+    - for fine-tuning, can report test accuracy on shift/different layouts
+      - ideally show that it's possible to do in one-shot
+      - pre and post quantized
+  - Next meeting - Sun after Thanksgiving
+
+11/18/24
+  - Compare classifiers using different tokens?
+  - Demo
+    - Maybe have a live inference situation
+      - Streamed using bluetooth
+    - Backup video
+  - Perhaps would be helpfun to split version of training file
+  - Data processing
+    - Min of each frame
+    - Try other different strategies
+  - Possible model
+    - Min heatmap -> 2D CNN -> Flatten -> Classifier
+  - Quantization
+    - Pressure map - black or white
+    - Maybe more fine-grained for letters close to each others
+  - User calibration
+    - Method depends on tokenization
+    - Finetuning updates a heatmap to be non-biased towards QWERTY
+  - Training approach
+    - Sequence of temporal frames or individual frame
+    - Individual frame easier perhaps
+  - We need to think about how portray how this project is "Tiny"
+    - Quantize inputs and outputs
+    - What's the story? Compare latency and MACs
+  - Architecture model
+    - Frontend with prompts, text input, and buttons
+      - Button to switch between mode (live and calibrate) 
+      - Will probably do React frontend
+  - Mat has support for custom method
+    - Perhaps can start the backend
+    - Can pass array of pressure values
+
+  - Deliverables for next meeting
+    - Gary
+      - React/Flask app
+      - Make a fake model for Devin to interface with
+    - Devin
+      - Data recording for modifier and punctuation keys
+      - Split everything into individual files
+    - David - First crack at model
