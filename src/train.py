@@ -159,7 +159,7 @@ def train():
     # Load and preprocess data (keeping your existing data loading code)
     data_folder = 'recordings'
     file_list = [f for f in os.listdir(data_folder)
-                 if f.endswith('layout_1.hdf5') or f.endswith('2024-11-25_18-13-21.hdf5')]
+                 if f.endswith('layout_3.hdf5')]
 
     combined_data = combine_data_dicts(file_list, data_folder)
     samples, labels, label_to_idx = preprocess_combined_data(combined_data)

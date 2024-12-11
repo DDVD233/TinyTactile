@@ -105,7 +105,7 @@ def train_deep_model(model, train_loader, test_loader, device, num_epochs):
 
         if test_acc > best_acc:
             best_acc = test_acc
-            torch.save(model.state_dict(), f'best_{model.__class__.__name__}_model.pth')
+            torch.save(model.state_dict(), f'models/best_{model.__class__.__name__}_model.pth')
 
     return best_acc
 
