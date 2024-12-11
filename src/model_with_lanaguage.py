@@ -104,6 +104,10 @@ class NLTKLanguageModel:
             self._train_model()
             self._save_model()
 
+    def _save_model(self):
+        with open(self.model_path, 'wb') as f:
+            pickle.dump(self.model, f)
+
     def _ensure_nltk_data(self):
         try:
             nltk.data.find('corpora/brown')
@@ -400,6 +404,8 @@ def evaluate_with_language_model(
                     current_context = current_context[1:] + context_char
                 else:
                     current_context = current_context + context_char
+                    if len(current_context) > 100:
+                        current_context = current_context[-100:]
             predicted_text.append(predicted_char)
 
             # Print progress every 100 characters
@@ -437,11 +443,14 @@ def main(args):
 
     if 'resnet' in args.model_path.lower():
         model = ModelFactory.create_model('resnet', num_classes=30, device=device)
-        model.load_state_dict(torch.load(args.model_path, map_location=device))
+        model.load_state_dict(torch.load('models/best_ResNet_model.pth', map_location=device))
     elif 'knn' in args.model_path.lower():
         model = ModelFactory.create_model('knn', num_classes=30, device=device)
         train_dataset = TactileDataset(torch.FloatTensor(X_train), torch.LongTensor(y_train))
         model.fit(train_dataset)
+    elif 'shallowcnn' in args.model_path.lower():
+        model = ModelFactory.create_model('shallow_cnn', num_classes=30, device=device)
+        model.load_state_dict(torch.load('models/best_ShallowCNN_model.pth', map_location=device))
 
     # Create sentence dataset from your test data
     sentence_data = create_sentence_dataset(test_dataset, idx_to_char)
@@ -490,7 +499,7 @@ def main(args):
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser()
-    argparser.add_argument('--model_path', type=str, default='best_ResNet_model.pth',
+    argparser.add_argument('--model_path', type=str, default='models/best_ShallowCNN_model.pth',
                            help='Path to the best model checkpoint')
     args = argparser.parse_args()
     main(args)
