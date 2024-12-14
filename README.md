@@ -7,9 +7,7 @@ In the project, we develop a pressure-sensing textile interface that learns uniq
 ---
 ## Demo
 
-![demo-thumbnail](https://github.com/user-attachments/assets/68bd972e-c579-4d52-892d-cf8863842476)
-
-https://vimeo.com/1039126496?share=copy#t=0
+![demo-thumbnail]([https://github.com/user-attachments/assets/68bd972e-c579-4d52-892d-cf8863842476](https://vimeo.com/1039126496?share=copy#t=0))
 
 ---
 ## Set-up
